@@ -73,6 +73,8 @@ void wvdial::run()
 
 			m_ui->pbConnect->setEnabled( false ) ;
 
+			m_ui->pbQuit->setEnabled( false ) ;
+
 			m_ui->pbConnect->setText( tr( "Disconnect" ) ) ;
 
 			m_process.start( "wvdial" ) ;
@@ -150,6 +152,8 @@ void wvdial::run()
 		m_ui->pbConnect->setText( tr( "Connect" ) ) ;
 
 		m_ui->pbConnect->setEnabled( true ) ;
+
+		m_ui->pbQuit->setEnabled( true ) ;
 
 		m_ui->pbConnect->setFocus() ;
 	} ) ;
