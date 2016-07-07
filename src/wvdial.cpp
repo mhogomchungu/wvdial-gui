@@ -75,6 +75,8 @@ void wvdial::run()
 
 			m_ui->pbConnect->setText( tr( "Disconnect" ) ) ;
 
+			m_process.start( "wvdial" ) ;
+
 			QIcon icon( ":/on.png" ) ;
 
 			m_trayIcon.setIcon( icon ) ;
@@ -94,11 +96,9 @@ void wvdial::run()
 				e.exit() ;
 			} ) ;
 
-			m.start( 1000 ) ;
+			m.start( 2000 ) ;
 
-			e.exec() ;
-
-			m_process.start( "wvdial" ) ;
+			e.exec() ;			
 		}else{
 			m_ui->pbConnect->setEnabled( false ) ;
 
@@ -112,6 +112,13 @@ void wvdial::run()
 
 			QCoreApplication::quit() ;
 		}
+	} ) ;
+
+	connect( m_ui->pbClear,&QPushButton::clicked,[ this ](){
+
+		m_data.clear() ;
+
+		m_ui->statusOutPut->setText( QString() ) ;
 	} ) ;
 
 	connect( &m_process,&QProcess::readyReadStandardError,[ this ](){
