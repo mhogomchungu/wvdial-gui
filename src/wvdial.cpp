@@ -100,7 +100,7 @@ void wvdial::run()
 
 			m.start( 2000 ) ;
 
-			e.exec() ;			
+			e.exec() ;
 		}else{
 			m_ui->pbConnect->setEnabled( false ) ;
 
