@@ -27,6 +27,7 @@
 #include <QProcess>
 
 #include <QByteArray>
+#include <QSettings>
 
 namespace Ui {
 class wvdial;
@@ -41,8 +42,9 @@ public:
 
 	void start() ;
 private slots:
-	void run() ;
+	void setIcon( const QString& ) ;
 	void hasEvent( const QByteArray& ) ;
+	void run() ;
 private:
 	Ui::wvdial * m_ui ;
 
@@ -51,6 +53,12 @@ private:
 	QProcess m_process ;
 
 	QByteArray m_data ;
+
+	QString m_exe ;
+
+	QSettings m_settings ;
+
+	QRect m_dimensions ;
 };
 
 #endif // WVDIAL_H

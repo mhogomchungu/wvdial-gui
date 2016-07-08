@@ -32,28 +32,89 @@
 
 #include <QTimer>
 #include <QEventLoop>
+#include <QFile>
 
-wvdial::wvdial() : m_ui( new Ui::wvdial )
+wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" )
 {
 	m_ui->setupUi( this ) ;
 
-	QIcon icon( ":/off.png" ) ;
+	auto _has_wvdial = [ this ](){
 
-	m_trayIcon.setIcon( icon ) ;
+		auto l = { "/usr/local/bin/wvdial",
+			   "/usr/local/sbin/wvdial",
+			   "/usr/bin/wvdial",
+			   "/usr/sbin/wvdial",
+			   "/bin/wvdial",
+			   "/sbin/wvdial" } ;
 
-	this->setWindowIcon( icon ) ;
+		for( const auto& it : l ){
 
-	m_ui->pbConnect->setText( tr( "Connect" ) ) ;
+			if( QFile::exists( it ) ){
+
+				m_exe = it ;
+
+				return true ;
+			}
+		}
+
+		return false ;
+	} ;
+
+	if( m_settings.contains( "dimensions" ) ){
+
+		auto e = m_settings.value( "dimensions" ).toString().split( ' ' )  ;
+
+		if( e.size() >= 4 ){
+
+			m_dimensions.setX( e.at( 0 ).toInt() ) ;
+			m_dimensions.setY( e.at( 1 ).toInt() ) ;
+			m_dimensions.setWidth( e.at( 2 ).toInt() ) ;
+			m_dimensions.setHeight( e.at( 3 ).toInt() ) ;
+
+			this->window()->setGeometry( m_dimensions ) ;
+		}
+	}
+
+	if( _has_wvdial() ){
+
+		this->setIcon( "off" ) ;
+
+		m_ui->pbConnect->setText( tr( "&Connect" ) ) ;
+	}else{
+		m_ui->statusOutPut->setText( tr( "Error: Failed To Find wvdial Executable" ) ) ;
+		m_ui->pbConnect->setEnabled( false ) ;
+	}
 }
 
 wvdial::~wvdial()
-{
+{	
+	m_settings.setValue( "dimensions",[ this ](){
+
+		auto _number = []( int e ){ return QString::number( e ) ; } ;
+
+		auto e = this->window()->geometry() ;
+
+		return QString( "%1 %2 %3 %4" ).arg( _number( e.x() ),
+						     _number( e.y() ),
+						     _number( e.width() ),
+						     _number( e.height() ) ) ;
+	}() ) ;
+
 	delete m_ui ;
 }
 
 void wvdial::start()
 {
 	QMetaObject::invokeMethod( this,"run",Qt::QueuedConnection ) ;
+}
+
+void wvdial::setIcon( const QString& iconName )
+{
+	QIcon icon( ":/" + iconName + ".png" ) ;
+
+	m_trayIcon.setIcon( icon ) ;
+
+	this->setWindowIcon( icon ) ;
 }
 
 void wvdial::run()
@@ -75,15 +136,11 @@ void wvdial::run()
 
 			m_ui->pbQuit->setEnabled( false ) ;
 
-			m_ui->pbConnect->setText( tr( "Disconnect" ) ) ;
+			m_ui->pbConnect->setText( tr( "&Disconnect" ) ) ;
 
-			m_process.start( "wvdial" ) ;
+			m_process.start( m_exe ) ;
 
-			QIcon icon( ":/on.png" ) ;
-
-			m_trayIcon.setIcon( icon ) ;
-
-			this->setWindowIcon( icon ) ;
+			this->setIcon( "on") ;
 
 			QTimer m ;
 
@@ -143,13 +200,9 @@ void wvdial::run()
 
 		Q_UNUSED( s ) ;
 
-		QIcon icon( ":/off.png" ) ;
+		this->setIcon( "off" ) ;
 
-		m_trayIcon.setIcon( icon ) ;
-
-		this->setWindowIcon( icon ) ;
-
-		m_ui->pbConnect->setText( tr( "Connect" ) ) ;
+		m_ui->pbConnect->setText( tr( "&Connect" ) ) ;
 
 		m_ui->pbConnect->setEnabled( true ) ;
 
@@ -164,8 +217,12 @@ void wvdial::run()
 
 			if( this->isVisible() ){
 
+				m_dimensions = this->window()->geometry() ;
+
 				this->hide() ;
 			}else{
+				this->window()->setGeometry( m_dimensions ) ;
+
 				this->show() ;
 			}
 		}
