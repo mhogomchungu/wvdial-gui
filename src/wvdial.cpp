@@ -84,6 +84,10 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 		m_ui->statusOutPut->setText( tr( "Error: Failed To Find wvdial Executable" ) ) ;
 		m_ui->pbConnect->setEnabled( false ) ;
 	}
+
+	m_process.setProcessChannelMode( QProcess::MergedChannels ) ;
+
+	m_ui->statusOutPut->ensureCursorVisible() ;
 }
 
 wvdial::~wvdial()
@@ -175,19 +179,12 @@ void wvdial::run()
 
 	connect( m_ui->pbClear,&QPushButton::clicked,[ this ](){
 
-		m_data.clear() ;
-
 		m_ui->statusOutPut->setText( QString() ) ;
-	} ) ;
-
-	connect( &m_process,&QProcess::readyReadStandardError,[ this ](){
-
-		this->hasEvent( m_process.readAllStandardError() ) ;
 	} ) ;
 
 	connect( &m_process,&QProcess::readyReadStandardOutput,[ this ](){
 
-		this->hasEvent( m_process.readAllStandardOutput() ) ;
+		m_ui->statusOutPut->append( m_process.readAllStandardOutput() ) ;
 	} ) ;
 
 	connect( &m_process,[](){
@@ -231,11 +228,4 @@ void wvdial::run()
 	m_trayIcon.show() ;
 
 	this->show() ;
-}
-
-void wvdial::hasEvent( const QByteArray& e )
-{
-	m_data += e ;
-
-	m_ui->statusOutPut->setText( m_data ) ;
 }

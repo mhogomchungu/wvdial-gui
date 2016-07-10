@@ -43,7 +43,6 @@ public:
 	void start() ;
 private slots:
 	void setIcon( const QString& ) ;
-	void hasEvent( const QByteArray& ) ;
 	void run() ;
 private:
 	Ui::wvdial * m_ui ;
@@ -51,8 +50,6 @@ private:
 	QSystemTrayIcon m_trayIcon ;
 
 	QProcess m_process ;
-
-	QByteArray m_data ;
 
 	QString m_exe ;
 
