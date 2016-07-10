@@ -30,13 +30,13 @@ QT5_ADD_RESOURCES( TRAY_RC_SRCS ${RESOUCES} )
 
 add_executable( wvdial-gui ${CPP_FILES} ${MOC} ${UI} ${TRAY_RC_SRCS} )
 
-TARGET_LINK_LIBRARIES( wvdial-gui lxqtwallet ${Qt5Widgets_LIBRARIES} ${Qt5Core_LIBRARIES} )
+TARGET_LINK_LIBRARIES( wvdial-gui ${Qt5Widgets_LIBRARIES} ${Qt5Core_LIBRARIES} )
 
 set_target_properties( wvdial-gui PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64 -Wextra -Wall -s -fPIE -pthread  -pedantic " )
 set_target_properties( wvdial-gui PROPERTIES LINK_FLAGS "-pie" )
 
 install( TARGETS wvdial-gui RUNTIME DESTINATION bin )
-	
+
 install( FILES icons/wvdial-gui.png DESTINATION /usr/share/icons/hicolor/48x48/apps/ )
 install( FILES icons/wvdial-gui.png DESTINATION /usr/share/pixmaps )
 
@@ -46,11 +46,10 @@ install( FILES ${PROJECT_BINARY_DIR}/wvdial-gui.desktop DESTINATION share/applic
 
 # desktop file section
 file( WRITE "${PROJECT_BINARY_DIR}/wvdial-gui.desktop"
-"#!/usr/bin/env xdg-open
-[Desktop Entry]
+"[Desktop Entry]
 Comment[en_US]=
 Comment=
-Exec=${CMAKE_INSTALL_PREFIX}/bin/wvdial-gui 
+Exec=${CMAKE_INSTALL_PREFIX}/bin/wvdial-gui
 GenericName[en_US]=A GUI front end to wvdial tool
 GenericName=A GUI front end to wvdial tool
 Icon=wvdial-gui
@@ -58,9 +57,7 @@ MimeType=
 Name[en_US]=wvdial-gui
 Name=wvdial-gui
 NoDisplay=false
-Path=
 StartupNotify=true
 Terminal=false
-TerminalOptions=
 Type=Application
 Categories=Network;X-MandrivaLinux-Internet;\n")

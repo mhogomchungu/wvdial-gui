@@ -28,9 +28,6 @@ URL:            https://github.com/mhogomchungu/wvdial-gui
 
 BuildRequires: cmake
 BuildRequires: gcc-c++
-BuildRequires: glibc-devel
-BuildRequires: libgcrypt-devel
-BuildRequires: libsecret-devel
 
 %if 0%{?fedora}
 BuildRequires: qt5-qtbase-devel
