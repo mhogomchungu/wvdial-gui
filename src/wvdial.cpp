@@ -64,7 +64,7 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 
 	if( m_settings.contains( "dimensions" ) ){
 
-		auto e = m_settings.value( "dimensions" ).toString().split( ' ' )  ;
+		auto e = m_settings.value( "dimensions" ).toString().split( ' ' ) ;
 
 		if( e.size() >= 4 ){
 
@@ -88,11 +88,11 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 
 	if( m_settings.contains( "interval" ) ){
 
-		m_interval = m_settings.value( "interval" ).toString().toInt() ;
+		m_interval = 1000 * m_settings.value( "interval" ).toString().toInt() ;
 	}else{
 		m_interval = 2 ;
 
-		m_settings.setValue( "interval",QString::number( m_interval ) ) ;
+		m_settings.setValue( "interval",QString::number( m_interval / 1000 ) ) ;
 	}
 
 	if( _has_wvdial() ){
@@ -195,9 +195,15 @@ void wvdial::run()
 
 	connect( m_ui->pbQuit,&QPushButton::clicked,[ this,_notConnected ](){
 
-		if( _notConnected() ){
+		m_timer.stop() ;
+
+		if( m_process_0.state() == QProcess::NotRunning ){
 
 			QCoreApplication::quit() ;
+		}else{
+			m_process_0.terminate() ;
+
+			m_quit = true ;
 		}
 	} ) ;
 
@@ -213,7 +219,9 @@ void wvdial::run()
 
 	connect( &m_process,[](){
 
-		return static_cast< void( QProcess::* )( int,QProcess::ExitStatus )>( &QProcess::finished ) ;
+		using type_t = void( QProcess::* )( int,QProcess::ExitStatus ) ;
+
+		return static_cast< type_t >( &QProcess::finished ) ;
 
 	}(),[ this ]( int e,QProcess::ExitStatus s ){
 
@@ -234,7 +242,8 @@ void wvdial::run()
 		m_timer.stop() ;
 	} ) ;
 
-	connect( &m_trayIcon,&QSystemTrayIcon::activated,[ this ]( QSystemTrayIcon::ActivationReason e ){
+	connect( &m_trayIcon,&QSystemTrayIcon::activated,
+		 [ this ]( QSystemTrayIcon::ActivationReason e ){
 
 		if( e == QSystemTrayIcon::Trigger ){
 
@@ -254,6 +263,26 @@ void wvdial::run()
 	connect( &m_timer,&QTimer::timeout,[ this ](){
 
 		m_process_0.start( "ifconfig" ) ;
+	} ) ;
+
+	connect( &m_process_0,[](){
+
+		using type_t = void( QProcess::* )( int,QProcess::ExitStatus ) ;
+
+		return static_cast< type_t >( &QProcess::finished ) ;
+
+	}(),[ this ]( int e,QProcess::ExitStatus s ){
+
+		Q_UNUSED( e ) ;
+
+		Q_UNUSED( s ) ;
+
+		if( m_quit ){
+
+			QCoreApplication::quit() ;
+		}else{
+			m_timer.start( m_interval ) ;
+		}
 	} ) ;
 
 	connect( &m_process_0,&QProcess::readyReadStandardOutput,[ this ](){
@@ -346,20 +375,23 @@ void wvdial::run()
 
 			if( e.at( i ).startsWith( m_interface ) ){
 
-				const auto& z = e.at( i + 6 ) ;
+				if( i + 6 < s ){
 
-				if( z.contains( "RX bytes:" ) ){
+					const auto& z = e.at( i + 6 ) ;
 
-					auto q = _split( z,' ' ) ;
+					if( z.contains( "RX bytes:" ) ){
 
-					_received( q ) ;
+						auto q = _split( z,' ' ) ;
 
-					_sent( q ) ;
+						_received( q ) ;
+
+						_sent( q ) ;
+					}
 				}
 
 				break ;
 			}
-		}
+		}		
 	} ) ;
 
 	m_trayIcon.show() ;

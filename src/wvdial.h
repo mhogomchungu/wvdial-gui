@@ -70,6 +70,8 @@ private:
 	quint64 m_received = 0 ;
 	quint64 m_sent_old = 0 ;
 	quint64 m_received_old = 0 ;
+
+	bool m_quit = false ;
 };
 
 #endif // WVDIAL_H
