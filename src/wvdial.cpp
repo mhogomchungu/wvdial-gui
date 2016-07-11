@@ -302,29 +302,19 @@ void wvdial::run()
 
 			if( New > *old ){
 
-				/*
-				 * still have the old connection and with new data
-				 */
 				*sum += New - *old ;
-
-				*old = New ;
 
 			}else if( New < *old ){
 
-				/*
-				 * disconnection happen and we have new data on the new connection
-				 */
 				*sum += New ;
-
-				*old = New ;
-			}else{
-				/*
-				 * Amount of data did not change since we last checked.
-				 */
 			}
+
+			*old = New ;
 		} ;
 
-		auto _sent = [ this,&_prettify,&_manage_data ]( QString e ){
+		auto _sent = [ this,&_prettify,&_manage_data ]( const QStringList& l ){
+
+			auto e = l.at( 5 ) ;
 
 			e.remove( "bytes:" ) ;
 
@@ -335,7 +325,9 @@ void wvdial::run()
 			m_ui->sent->setText( a ) ;
 		} ;
 
-		auto _received = [ this,&_prettify,&_manage_data ]( QString e ){
+		auto _received = [ this,&_prettify,&_manage_data ]( const QStringList& l ){
+
+			auto e = l.at( 1 ) ;
 
 			e.remove( "bytes:" ) ;
 
@@ -360,9 +352,9 @@ void wvdial::run()
 
 					auto q = _split( z,' ' ) ;
 
-					_received( q.at( 1 ) ) ;
+					_received( q ) ;
 
-					_sent( q.at( 5 ) ) ;
+					_sent( q ) ;
 				}
 
 				break ;
