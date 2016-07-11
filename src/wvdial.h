@@ -29,6 +29,8 @@
 #include <QByteArray>
 #include <QSettings>
 
+#include <QTimer>
+
 namespace Ui {
 class wvdial;
 }
@@ -51,11 +53,23 @@ private:
 
 	QProcess m_process ;
 
+	QProcess m_process_0 ;
+
 	QString m_exe ;
+	QString m_interface ;
+
+	int m_interval ;
 
 	QSettings m_settings ;
 
 	QRect m_dimensions ;
+
+	QTimer m_timer ;
+
+	quint64 m_sent = 0 ;
+	quint64 m_received = 0 ;
+	quint64 m_sent_old = 0 ;
+	quint64 m_received_old = 0 ;
 };
 
 #endif // WVDIAL_H

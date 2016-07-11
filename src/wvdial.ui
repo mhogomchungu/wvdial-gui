@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>503</width>
     <height>459</height>
    </rect>
   </property>
@@ -15,6 +15,59 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="1">
+     <widget class="QLabel" name="received">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>31</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Data Sent: </string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="sent">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>31</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Data Received: </string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QPushButton" name="pbConnect">
+      <property name="text">
+       <string>&amp;Connect</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QPushButton" name="pbClear">
+      <property name="text">
+       <string>&amp;Clear</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QPushButton" name="pbQuit">
+      <property name="text">
+       <string>&amp;Quit</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" colspan="3">
      <widget class="QTextEdit" name="statusOutPut">
       <property name="acceptDrops">
@@ -25,31 +78,16 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="pbConnect">
-      <property name="text">
-       <string>&amp;Connect</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="pbQuit">
-      <property name="text">
-       <string>&amp;Quit</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="pbClear">
-      <property name="text">
-       <string>&amp;Clear</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>statusOutPut</tabstop>
+  <tabstop>pbConnect</tabstop>
+  <tabstop>pbClear</tabstop>
+  <tabstop>pbQuit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

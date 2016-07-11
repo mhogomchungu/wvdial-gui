@@ -34,6 +34,8 @@
 #include <QEventLoop>
 #include <QFile>
 
+#include <iostream>
+
 wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" )
 {
 	m_ui->setupUi( this ) ;
@@ -75,6 +77,24 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 		}
 	}
 
+	if( m_settings.contains( "interface" ) ){
+
+		m_interface = m_settings.value( "interface" ).toString() ;
+	}else{
+		m_interface = "ppp0" ;
+
+		m_settings.setValue( "interface",m_interface ) ;
+	}
+
+	if( m_settings.contains( "interval" ) ){
+
+		m_interval = m_settings.value( "interval" ).toString().toInt() ;
+	}else{
+		m_interval = 2 ;
+
+		m_settings.setValue( "interval",QString::number( m_interval ) ) ;
+	}
+
 	if( _has_wvdial() ){
 
 		this->setIcon( "off" ) ;
@@ -87,11 +107,13 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 
 	m_process.setProcessChannelMode( QProcess::MergedChannels ) ;
 
+	m_process_0.setProcessChannelMode( QProcess::MergedChannels ) ;
+
 	m_ui->statusOutPut->ensureCursorVisible() ;
 }
 
 wvdial::~wvdial()
-{	
+{
 	m_settings.setValue( "dimensions",[ this ](){
 
 		auto _number = []( int e ){ return QString::number( e ) ; } ;
@@ -162,6 +184,8 @@ void wvdial::run()
 			m.start( 2000 ) ;
 
 			e.exec() ;
+
+			m_timer.start( m_interval ) ;
 		}else{
 			m_ui->pbConnect->setEnabled( false ) ;
 
@@ -206,6 +230,8 @@ void wvdial::run()
 		m_ui->pbQuit->setEnabled( true ) ;
 
 		m_ui->pbConnect->setFocus() ;
+
+		m_timer.stop() ;
 	} ) ;
 
 	connect( &m_trayIcon,&QSystemTrayIcon::activated,[ this ]( QSystemTrayIcon::ActivationReason e ){
@@ -221,6 +247,125 @@ void wvdial::run()
 				this->window()->setGeometry( m_dimensions ) ;
 
 				this->show() ;
+			}
+		}
+	} ) ;
+
+	connect( &m_timer,&QTimer::timeout,[ this ](){
+
+		m_process_0.start( "ifconfig" ) ;
+	} ) ;
+
+	connect( &m_process_0,&QProcess::readyReadStandardOutput,[ this ](){
+
+		auto _prettify = []( quint64 s ){
+
+			auto _convert = [ & ]( const char * p,double q ){
+
+				auto e = QString::number( double( s ) / q,'f',2 ) ;
+
+				e.remove( ".00" ) ;
+
+				return QString( "%1 %2" ).arg( e,p ) ;
+			} ;
+
+			switch( QString::number( s ).size() ){
+
+			case 0 :
+			case 1 : case 2 : case 3 :
+
+				return QString( "%1 B" ).arg( QString::number( s ) ) ;
+
+			case 4 : case 5 : case 6 :
+
+				return _convert( "KB",1024 ) ;
+
+			case 7 : case 8 : case 9 :
+
+				return _convert( "MB",1048576 ) ;
+
+			case 10: case 11 : case 12 :
+
+				return _convert( "GB",1073741824 ) ;
+
+			default:
+				return _convert( "TB",1024.0 * 1073741824 ) ;
+			}
+		} ;
+
+		auto _split = []( const QString& e,char s ){
+
+			return QString( e ).split( s,QString::SkipEmptyParts ) ;
+		} ;
+
+		auto _manage_data = []( quint64 New,quint64 * old,quint64 * sum ){
+
+			if( New > *old ){
+
+				/*
+				 * still have the old connection and with new data
+				 */
+				*sum += New - *old ;
+
+				*old = New ;
+
+			}else if( New < *old ){
+
+				/*
+				 * disconnection happen and we have new data on the new connection
+				 */
+				*sum += New ;
+
+				*old = New ;
+			}else{
+				/*
+				 * Amount of data did not change since we last checked.
+				 */
+			}
+		} ;
+
+		auto _sent = [ this,&_prettify,&_manage_data ]( QString e ){
+
+			e.remove( "bytes:" ) ;
+
+			_manage_data( e.toULongLong(),&m_sent_old,&m_sent ) ;
+
+			auto a = tr( "Data Sent: %1 " ).arg( _prettify( m_sent ) ) ;
+
+			m_ui->sent->setText( a ) ;
+		} ;
+
+		auto _received = [ this,&_prettify,&_manage_data ]( QString e ){
+
+			e.remove( "bytes:" ) ;
+
+			_manage_data( e.toULongLong(),&m_received_old,&m_received ) ;
+
+			auto a = tr( "Data Received: %1 " ).arg( _prettify( m_received ) ) ;
+
+			m_ui->received->setText( a ) ;
+		} ;
+
+		auto e = _split( m_process_0.readAllStandardOutput(),'\n' ) ;
+
+		auto s = e.size() ;
+
+		for( int i = 0 ; i < s ; i++ ){
+
+			if( e.at( i ).startsWith( m_interface ) ){
+
+				const auto& z = e.at( i + 6 ) ;
+
+				if( z.contains( "RX bytes:" ) ){
+
+					auto q = _split( z,' ' ) ;
+
+					_received( q.at( 1 ) ) ;
+
+					_sent( q.at( 5 ) ) ;
+				}
+
+				break ;
 			}
 		}
 	} ) ;
