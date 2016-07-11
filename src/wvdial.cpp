@@ -92,7 +92,7 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 	}else{
 		m_interval = 2 ;
 
-		m_settings.setValue( "interval",QString::number( m_interval / 1000 ) ) ;
+		m_settings.setValue( "interval",QString( "2" ) ) ;
 	}
 
 	if( _has_wvdial() ){
@@ -391,7 +391,7 @@ void wvdial::run()
 
 				break ;
 			}
-		}		
+		}
 	} ) ;
 
 	m_trayIcon.show() ;
