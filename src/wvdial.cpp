@@ -34,6 +34,8 @@
 #include <QEventLoop>
 #include <QFile>
 
+#include <functional>
+
 #include <iostream>
 
 wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" )
@@ -156,6 +158,24 @@ void wvdial::run()
 
 	connect( m_ui->pbConnect,&QPushButton::clicked,[ this,_notConnected ](){
 
+		auto _pause = [ this ]( int s,std::function< void() > function ){
+
+			QTimer m ;
+
+			QEventLoop e ;
+
+			connect( &m,&QTimer::timeout,[ &,function ](){
+
+				function() ;
+
+				e.exit() ;
+			} ) ;
+
+			m.start( 1000 * s ) ;
+
+			e.exec() ;
+		} ;
+
 		if( _notConnected() ){
 
 			m_ui->pbConnect->setEnabled( false ) ;
@@ -168,28 +188,18 @@ void wvdial::run()
 
 			this->setIcon( "on") ;
 
-			QTimer m ;
+			m_timer.start( m_interval ) ;
 
-			QEventLoop e ;
-
-			connect( &m,&QTimer::timeout,[ & ](){
+			_pause( 3,[ this ](){
 
 				m_ui->pbConnect->setEnabled( true ) ;
 
 				m_ui->pbConnect->setFocus() ;
-
-				e.exit() ;
 			} ) ;
-
-			m.start( 2000 ) ;
-
-			e.exec() ;
-
-			m_timer.start( m_interval ) ;
 		}else{
 			m_ui->pbConnect->setEnabled( false ) ;
 
-			m_process.terminate() ;
+			_pause( 1,[ this ](){ m_process.terminate() ; } ) ;
 		}
 	} ) ;
 
