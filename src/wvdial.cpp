@@ -92,7 +92,7 @@ wvdial::wvdial() : m_ui( new Ui::wvdial ),m_settings( "wvdial-gui","wvdial-gui" 
 
 		m_interval = 1000 * m_settings.value( "interval" ).toString().toInt() ;
 	}else{
-		m_interval = 2 ;
+		m_interval = 1000 * 2 ;
 
 		m_settings.setValue( "interval",QString( "2" ) ) ;
 	}
