@@ -343,7 +343,7 @@ void wvdial::run()
 
 				*sum += New - *old ;
 
-			}else if( New <= *old ){
+			}else if( New < *old ){
 
 				*sum += New ;
 			}
