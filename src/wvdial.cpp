@@ -186,7 +186,7 @@ void wvdial::run()
 
 			m_process.start( m_exe ) ;
 
-			this->setIcon( "on") ;
+			this->setIcon( "on" ) ;
 
 			m_timer.start( m_interval ) ;
 
@@ -359,7 +359,7 @@ void wvdial::run()
 
 			_manage_data( e.toULongLong(),&m_sent_old,&m_sent ) ;
 
-			auto a = tr( "Data Sent: %1 " ).arg( _prettify( m_sent ) ) ;
+			auto a = tr( "Data Sent: %1" ).arg( _prettify( m_sent ) ) ;
 
 			m_ui->sent->setText( a ) ;
 		} ;
@@ -372,7 +372,7 @@ void wvdial::run()
 
 			_manage_data( e.toULongLong(),&m_received_old,&m_received ) ;
 
-			auto a = tr( "Data Received: %1 " ).arg( _prettify( m_received ) ) ;
+			auto a = tr( "Data Received: %1" ).arg( _prettify( m_received ) ) ;
 
 			m_ui->received->setText( a ) ;
 		} ;
