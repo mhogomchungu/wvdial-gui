@@ -1,6 +1,6 @@
 
 ps: copy and paste all given commands to make sure you dont mistype them.
-ps: at step 5,replace "1.0.1" to wvdial-gui version you are building.
+ps: at step 5,replace "1.2.0" to wvdial-gui version you are building.
 ps: these instructions assumes rpm build directory is at "~/rpmbuild".
     Modify the paths in step 5 if they are different in your distribution.
 
@@ -29,8 +29,8 @@ ps: these instructions assumes rpm build directory is at "~/rpmbuild".
    ****************************************************************************************************************
 
    rpmdev-setuptree
-   tar   -cf  ~/rpmbuild/SOURCES/wvdial-gui-1.0.1.tar ../wvdial-gui-1.0.1
-   xz    -z  ~/rpmbuild/SOURCES/wvdial-gui-1.0.1.tar
+   tar   -cf  ~/rpmbuild/SOURCES/wvdial-gui-1.2.0.tar ../wvdial-gui-1.2.0
+   xz    -z  ~/rpmbuild/SOURCES/wvdial-gui-1.2.0.tar
 
    ****************************************************************************************************************
 

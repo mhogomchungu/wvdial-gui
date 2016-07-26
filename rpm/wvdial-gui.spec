@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Name:           wvdial-gui
-Version:        1.0.1
+Version:        1.2.0
 Release:        0
 Summary:        Qt GUI front end to wvdial
 License:        GPL-2.0+
